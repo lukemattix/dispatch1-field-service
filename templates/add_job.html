@@ -1,30 +1,169 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container" style="max-width:600px;">
-  <h1 class="mb-4">➕ Add New Job</h1>
-  <form method="post">
-    <div class="mb-3">
-      <label class="form-label">Site Name</label>
-      <input name="site" type="text" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Date</label>
-      <input name="date" type="date" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Technician</label>
-      <input name="tech" type="text" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Status</label>
-      <select name="status" class="form-select" required>
-        <option>To Be Scheduled</option>
-        <option>Scheduled</option>
-        <option>In Progress</option>
-        <option>Completed</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-success">Add Job</button>
-  </form>
+<div class="container" style="max-width:800px;">
+  <div class="glass-card">
+    <h1 class="mb-4">➕ Add New Job</h1>
+    <form method="post" id="jobForm">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Client</label>
+            <select name="client_action" class="form-select" id="clientAction" onchange="toggleClientFields()">
+              <option value="">Select Client</option>
+              {% for client in clients %}
+              <option value="existing" data-id="{{ client.id }}">{{ client.name }} - {{ client.organization }}</option>
+              {% endfor %}
+              <option value="new">➕ Add New Client</option>
+            </select>
+            <input type="hidden" name="existing_client" id="existingClient">
+          </div>
+          
+          <div id="newClientFields" style="display:none;">
+            <div class="mb-3">
+              <label class="form-label">Client Name</label>
+              <input name="client_name" type="text" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Client Email</label>
+              <input name="client_email" type="email" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Client Phone</label>
+              <input name="client_phone" type="text" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Organization</label>
+              <input name="client_organization" type="text" class="form-control">
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Site</label>
+            <select name="site_action" class="form-select" id="siteAction" onchange="toggleSiteFields()">
+              <option value="">Select Site</option>
+              {% for site in end_clients %}
+              <option value="existing" data-id="{{ site.id }}">{{ site.site_name }} - {{ site.city }}</option>
+              {% endfor %}
+              <option value="new">➕ Add New Site</option>
+            </select>
+            <input type="hidden" name="existing_site" id="existingSite">
+          </div>
+          
+          <div id="newSiteFields" style="display:none;">
+            <div class="mb-3">
+              <label class="form-label">Site Name</label>
+              <input name="site_name" type="text" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Address</label>
+              <input name="site_address" type="text" class="form-control">
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">City</label>
+                  <input name="site_city" type="text" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">State</label>
+                  <input name="site_state" type="text" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="mb-3">
+                  <label class="form-label">ZIP</label>
+                  <input name="site_zip" type="text" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Contract (Optional)</label>
+            <select name="existing_contract" class="form-select">
+              <option value="">No Contract</option>
+              {% for contract in contracts %}
+              <option value="{{ contract.id }}">{{ contract.contract_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input name="date" type="date" class="form-control" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Technician</label>
+            <input name="tech" type="text" class="form-control" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" required>
+              <option>To Be Scheduled</option>
+              <option>Scheduled</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Add Job</button>
+    </form>
+  </div>
 </div>
+
+<script>
+function toggleClientFields() {
+  const action = document.getElementById('clientAction').value;
+  const newFields = document.getElementById('newClientFields');
+  const existingClient = document.getElementById('existingClient');
+  
+  if (action === 'new') {
+    newFields.style.display = 'block';
+    existingClient.value = '';
+  } else if (action === 'existing') {
+    newFields.style.display = 'none';
+    const selectedOption = document.getElementById('clientAction').selectedOptions[0];
+    existingClient.value = selectedOption.dataset.id;
+  } else {
+    newFields.style.display = 'none';
+    existingClient.value = '';
+  }
+}
+
+function toggleSiteFields() {
+  const action = document.getElementById('siteAction').value;
+  const newFields = document.getElementById('newSiteFields');
+  const existingSite = document.getElementById('existingSite');
+  
+  if (action === 'new') {
+    newFields.style.display = 'block';
+    existingSite.value = '';
+  } else if (action === 'existing') {
+    newFields.style.display = 'none';
+    const selectedOption = document.getElementById('siteAction').selectedOptions[0];
+    existingSite.value = selectedOption.dataset.id;
+  } else {
+    newFields.style.display = 'none';
+    existingSite.value = '';
+  }
+}
+</script>
 {% endblock %}

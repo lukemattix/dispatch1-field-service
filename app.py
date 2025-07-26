@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import csv
 import io
 import os
+from datetime import datetime
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
@@ -33,6 +34,21 @@ def send_email(to_email: str, subject: str, content: str) -> None:
         pass
 
 
+def generate_ticket_number():
+    """Generate a unique ticket number in format TK-YYYYMMDD-XXXX"""
+    today = datetime.now().strftime('%Y%m%d')
+    prefix = f"TK-{today}-"
+    last_ticket = Job.query.filter(Job.ticket_number.like(f"{prefix}%")).order_by(Job.ticket_number.desc()).first()
+    
+    if last_ticket:
+        last_num = int(last_ticket.ticket_number.split('-')[-1])
+        new_num = last_num + 1
+    else:
+        new_num = 1
+    
+    return f"{prefix}{new_num:04d}"
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -47,12 +63,47 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120))
+    phone = db.Column(db.String(20))
+    organization = db.Column(db.String(120))
+    end_clients = db.relationship('EndClient', backref='client', lazy=True)
+    contracts = db.relationship('Contract', backref='client', lazy=True)
+    jobs = db.relationship('Job', backref='client', lazy=True)
+
+
+class EndClient(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    site_name = db.Column(db.String(120), nullable=False)
+    address = db.Column(db.String(200))
+    city = db.Column(db.String(80))
+    state = db.Column(db.String(20))
+    zip_code = db.Column(db.String(10))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
+    jobs = db.relationship('Job', backref='end_client', lazy=True)
+
+
+class Contract(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    contract_name = db.Column(db.String(120), nullable=False)
+    terms = db.Column(db.Text)
+    date = db.Column(db.String(50))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
+    jobs = db.relationship('Job', backref='contract', lazy=True)
+
+
 class Job(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    ticket_number = db.Column(db.String(20), unique=True, nullable=False)
     site = db.Column(db.String(120))
     date = db.Column(db.String(50))
     tech = db.Column(db.String(80))
     status = db.Column(db.String(50))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
+    end_client_id = db.Column(db.Integer, db.ForeignKey('end_client.id'))
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'))
 
 
 @login_manager.user_loader
@@ -114,19 +165,62 @@ def dashboard():
 @login_required
 def add_job():
     if request.method == 'POST':
+        client_id = None
+        end_client_id = None
+        contract_id = None
+        
+        if request.form.get('client_action') == 'new':
+            client = Client(
+                name=request.form['client_name'],
+                email=request.form.get('client_email'),
+                phone=request.form.get('client_phone'),
+                organization=request.form.get('client_organization')
+            )
+            db.session.add(client)
+            db.session.flush()
+            client_id = client.id
+        elif request.form.get('existing_client'):
+            client_id = int(request.form['existing_client'])
+        
+        if request.form.get('site_action') == 'new':
+            end_client = EndClient(
+                site_name=request.form['site_name'],
+                address=request.form.get('site_address'),
+                city=request.form.get('site_city'),
+                state=request.form.get('site_state'),
+                zip_code=request.form.get('site_zip'),
+                client_id=client_id
+            )
+            db.session.add(end_client)
+            db.session.flush()
+            end_client_id = end_client.id
+        elif request.form.get('existing_site'):
+            end_client_id = int(request.form['existing_site'])
+        
+        if request.form.get('existing_contract'):
+            contract_id = int(request.form['existing_contract'])
+        
         job = Job(
-            site=request.form['site'],
+            ticket_number=generate_ticket_number(),
+            site=request.form.get('site_name') or request.form.get('site'),
             date=request.form['date'],
             tech=request.form['tech'],
             status=request.form['status'],
+            client_id=client_id,
+            end_client_id=end_client_id,
+            contract_id=contract_id
         )
         db.session.add(job)
         db.session.commit()
         tech_user = User.query.filter_by(username=job.tech).first()
         if tech_user and tech_user.email:
-            send_email(tech_user.email, 'New Job Assigned', f'Job at {job.site} on {job.date} created. Status: {job.status}.')
+            send_email(tech_user.email, 'New Job Assigned', f'Job {job.ticket_number} at {job.site} on {job.date} created. Status: {job.status}.')
         return redirect(url_for('dashboard'))
-    return render_template('add_job.html')
+    
+    clients = Client.query.all()
+    end_clients = EndClient.query.all()
+    contracts = Contract.query.all()
+    return render_template('add_job.html', clients=clients, end_clients=end_clients, contracts=contracts)
 
 
 @app.route('/edit-job/<int:job_id>', methods=['GET', 'POST'])
@@ -138,12 +232,24 @@ def edit_job(job_id):
         job.date = request.form['date']
         job.tech = request.form['tech']
         job.status = request.form['status']
+        
+        if request.form.get('existing_client'):
+            job.client_id = int(request.form['existing_client'])
+        if request.form.get('existing_site'):
+            job.end_client_id = int(request.form['existing_site'])
+        if request.form.get('existing_contract'):
+            job.contract_id = int(request.form['existing_contract']) if request.form['existing_contract'] else None
+        
         db.session.commit()
         tech_user = User.query.filter_by(username=job.tech).first()
         if tech_user and tech_user.email:
-            send_email(tech_user.email, 'Job Updated', f'Job at {job.site} on {job.date} updated. Status: {job.status}.')
+            send_email(tech_user.email, 'Job Updated', f'Job {job.ticket_number} at {job.site} on {job.date} updated. Status: {job.status}.')
         return redirect(url_for('dashboard'))
-    return render_template('edit_job.html', job=job)
+    
+    clients = Client.query.all()
+    end_clients = EndClient.query.all()
+    contracts = Contract.query.all()
+    return render_template('edit_job.html', job=job, clients=clients, end_clients=end_clients, contracts=contracts)
 
 
 @app.route('/delete-job/<int:job_id>', methods=['POST'])
@@ -174,13 +280,23 @@ def download_csv():
     jobs = build_job_query().all()
     si = io.StringIO()
     cw = csv.writer(si)
-    cw.writerow(['id', 'site', 'date', 'tech', 'status'])
+    cw.writerow(['ticket_number', 'id', 'site', 'date', 'tech', 'status', 'client', 'end_client', 'contract'])
     for j in jobs:
-        cw.writerow([j.id, j.site, j.date, j.tech, j.status])
+        client_name = j.client.name if j.client else ''
+        end_client_name = j.end_client.site_name if j.end_client else ''
+        contract_name = j.contract.contract_name if j.contract else ''
+        cw.writerow([j.ticket_number, j.id, j.site, j.date, j.tech, j.status, client_name, end_client_name, contract_name])
     output = make_response(si.getvalue())
     output.headers["Content-Disposition"] = "attachment; filename=jobs.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
+
+@app.route('/contracts')
+@login_required
+def contracts():
+    contracts = Contract.query.all()
+    return render_template('contracts.html', contracts=contracts)
 
 
 @app.route('/register', methods=['GET', 'POST'])

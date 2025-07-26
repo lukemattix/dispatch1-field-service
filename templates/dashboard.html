@@ -1,40 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="mb-3 d-flex justify-content-between align-items-center">
-  <h1 class="h3">📋 Job Dashboard</h1>
-  <div>
-    <a href="{{ url_for('add_job') }}" class="btn btn-primary">➕ Add Job</a>
-    <a href="{{ url_for('download_csv', **request.args) }}" class="btn btn-secondary ms-2">Download CSV</a>
+<div class="glass-card">
+  <div class="mb-3 d-flex justify-content-between align-items-center">
+    <h1 class="h3">📋 Job Dashboard</h1>
+    <div>
+      <a href="{{ url_for('add_job') }}" class="btn btn-primary">➕ Add Job</a>
+      <a href="{{ url_for('download_csv', **request.args) }}" class="btn btn-secondary ms-2">Download CSV</a>
+    </div>
   </div>
 </div>
 
-<form class="row g-3 mb-3" method="get">
-  <div class="col-md-3">
-    <label class="form-label">From</label>
-    <input type="date" name="start" value="{{ request.args.get('start','') }}" class="form-control">
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">To</label>
-    <input type="date" name="end" value="{{ request.args.get('end','') }}" class="form-control">
-  </div>
-  <div class="col-md-3">
-    <label class="form-label">Status</label>
-    <select name="status" class="form-select">
-      <option value="">All</option>
-      {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
-      <option value="{{ s }}" {% if request.args.get('status')==s %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-3 d-flex align-items-end">
-    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
-  </div>
-</form>
+<div class="glass-card">
+  <form class="row g-3 mb-3" method="get">
+    <div class="col-md-3">
+      <label class="form-label">From</label>
+      <input type="date" name="start" value="{{ request.args.get('start','') }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">To</label>
+      <input type="date" name="end" value="{{ request.args.get('end','') }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-select">
+        <option value="">All</option>
+        {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
+        <option value="{{ s }}" {% if request.args.get('status')==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+      <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+    </div>
+  </form>
+</div>
+
+<div class="glass-card">
 
 <div class="table-responsive">
   <table class="table table-striped">
     <thead class="table-primary">
       <tr>
+        <th>Ticket #</th>
         <th>Date</th>
         <th>Site</th>
         <th>Technician</th>
@@ -45,6 +52,7 @@
     <tbody>
       {% for job in jobs %}
       <tr>
+        <td><strong>{{ job.ticket_number }}</strong></td>
         <td>{{ job.date }}</td>
         <td>{{ job.site }}</td>
         <td>{{ job.tech }}</td>
@@ -61,7 +69,7 @@
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="5" class="text-center">No jobs scheduled yet.</td></tr>
+      <tr><td colspan="6" class="text-center">No jobs scheduled yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
