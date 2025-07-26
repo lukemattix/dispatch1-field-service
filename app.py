@@ -1,11 +1,26 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask_sqlalchemy import SQLAlchemy
 from functools import wraps
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+class Job(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    site = db.Column(db.String(120), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    tech = db.Column(db.String(80), nullable=False)
+    status = db.Column(db.String(80), nullable=False)
+
+with app.app_context():
+    db.create_all()
 
 USERS = {"admin": "password123"}
-JOBS = []
 
 def login_required(f):
     @wraps(f)
@@ -39,18 +54,21 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', jobs=JOBS)
+    jobs = Job.query.all()
+    return render_template('dashboard.html', jobs=jobs)
 
 @app.route('/add-job', methods=['GET', 'POST'])
 @login_required
 def add_job():
     if request.method == 'POST':
-        JOBS.append({
-            'site': request.form['site'],
-            'date': request.form['date'],
-            'tech': request.form['tech'],
-            'status': request.form['status']
-        })
+        job = Job(
+            site=request.form['site'],
+            date=datetime.strptime(request.form['date'], '%Y-%m-%d').date(),
+            tech=request.form['tech'],
+            status=request.form['status']
+        )
+        db.session.add(job)
+        db.session.commit()
         return redirect(url_for('dashboard'))
     return render_template('add_job.html')
 
