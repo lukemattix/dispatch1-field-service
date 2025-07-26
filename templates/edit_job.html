@@ -1,29 +1,85 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container" style="max-width:600px;">
-  <h1 class="mb-4">Edit Job</h1>
-  <form method="post">
+<div class="container" style="max-width:800px;">
+  <div class="glass-card">
+    <h1 class="mb-4">Edit Job</h1>
     <div class="mb-3">
-      <label class="form-label">Site Name</label>
-      <input name="site" type="text" value="{{ job.site }}" required class="form-control">
+      <label class="form-label">Ticket Number</label>
+      <input type="text" value="{{ job.ticket_number }}" class="form-control" readonly>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Date</label>
-      <input name="date" type="date" value="{{ job.date }}" required class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Technician</label>
-      <input name="tech" type="text" value="{{ job.tech }}" required class="form-control">
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Status</label>
-      <select name="status" class="form-select">
-        {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
-        <option value="{{ s }}" {% if job.status==s %}selected{% endif %}>{{ s }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Update</button>
-  </form>
+    
+    <form method="post">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Client</label>
+            <select name="existing_client" class="form-select">
+              <option value="">No Client</option>
+              {% for client in clients %}
+              <option value="{{ client.id }}" {% if job.client_id == client.id %}selected{% endif %}>{{ client.name }} - {{ client.organization }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Site</label>
+            <select name="existing_site" class="form-select">
+              <option value="">No Site</option>
+              {% for site in end_clients %}
+              <option value="{{ site.id }}" {% if job.end_client_id == site.id %}selected{% endif %}>{{ site.site_name }} - {{ site.city }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Contract (Optional)</label>
+            <select name="existing_contract" class="form-select">
+              <option value="">No Contract</option>
+              {% for contract in contracts %}
+              <option value="{{ contract.id }}" {% if job.contract_id == contract.id %}selected{% endif %}>{{ contract.contract_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Site Name</label>
+            <input name="site" type="text" value="{{ job.site }}" required class="form-control">
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input name="date" type="date" value="{{ job.date }}" required class="form-control">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Technician</label>
+            <input name="tech" type="text" value="{{ job.tech }}" required class="form-control">
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+          {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
+          <option value="{{ s }}" {% if job.status==s %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Update Job</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="glass-card">
+  <div class="mb-3 d-flex justify-content-between align-items-center">
+    <h1 class="h3">📄 Contracts</h1>
+  </div>
+</div>
+
+<div class="glass-card">
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th>Contract Name</th>
+          <th>Client</th>
+          <th>Date</th>
+          <th>Terms</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contract in contracts %}
+        <tr>
+          <td><strong>{{ contract.contract_name }}</strong></td>
+          <td>{{ contract.client.name }} - {{ contract.client.organization }}</td>
+          <td>{{ contract.date }}</td>
+          <td>{{ contract.terms[:100] }}{% if contract.terms|length > 100 %}...{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center">No contracts found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

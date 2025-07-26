@@ -7,6 +7,186 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --glass-shadow: rgba(0, 0, 0, 0.1);
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px var(--glass-shadow);
+    }
+    
+    .navbar {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: none;
+      border-bottom: 1px solid var(--glass-border);
+      border-radius: 0;
+    }
+    
+    .navbar-brand, .nav-link, .navbar-text {
+      color: white !important;
+      font-weight: 500;
+    }
+    
+    .btn {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: var(--glass-bg);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline-primary, .btn-outline-secondary {
+      background: var(--glass-bg);
+      color: white;
+      border: 1px solid var(--glass-border);
+    }
+    
+    .btn-outline-primary:hover, .btn-outline-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transform: translateY(-2px);
+    }
+    
+    .form-control, .form-select {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-label {
+      color: white;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .table {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      overflow: hidden;
+      color: white;
+    }
+    
+    .table th {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 16px;
+    }
+    
+    .table td {
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px;
+      color: white;
+    }
+    
+    .table-responsive {
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    
+    .alert {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+    }
+    
+    .badge {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: white;
+      font-weight: 600;
+    }
+    
+    .container, .container-fluid {
+      position: relative;
+    }
+    
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin: 1rem 0;
+      box-shadow: 0 8px 32px var(--glass-shadow);
+    }
+    
+    .navbar-toggler {
+      border: 1px solid var(--glass-border);
+    }
+    
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='m4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  </style>
 </head>
 <body>
   {% if current_user.is_authenticated %}
@@ -20,6 +200,7 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
           <li class="nav-item"><a class="nav-link" href="{{ url_for('add_job') }}">Add Job</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('contracts') }}">Contracts</a></li>
           {% if current_user.role == 'admin' %}
           <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register User</a></li>
           {% endif %}
