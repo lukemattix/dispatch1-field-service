@@ -1,0 +1,54 @@
+
+
+{% extends "base.html" %}
+{% block content %}
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 900px; margin: auto;">
+
+  <h1 style="text-align: center; color: #2c3e50;">📋 Job Dashboard</h1>
+
+  <div style="text-align: right; margin-bottom: 20px;">
+    <a href="{{ url_for('add_job') }}"
+       style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+      ➕ Add Job
+    </a>
+  </div>
+
+  <table style="width: 100%; border-collapse: collapse; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <thead style="background-color: #2980b9; color: white;">
+      <tr>
+        <th style="padding: 12px; text-align: left;">📅 Date</th>
+        <th style="padding: 12px; text-align: left;">🏢 Site</th>
+        <th style="padding: 12px; text-align: left;">👷 Technician</th>
+        <th style="padding: 12px; text-align: left;">📌 Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr style="background-color: {% if loop.index0 % 2 == 0 %}#f9f9f9{% else %}#ffffff{% endif %};">
+        <td style="padding: 12px;">{{ job.date }}</td>
+        <td style="padding: 12px;">{{ job.site }}</td>
+        <td style="padding: 12px;">{{ job.tech }}</td>
+        <td style="padding: 12px;">
+          <span style="
+            padding: 5px 10px;
+            border-radius: 15px;
+            color: white;
+            background-color: {% if job.status == 'Completed' %}#2ecc71{% 
+                                 elif job.status == 'In Progress' %}#f1c40f{% 
+                                 elif job.status == 'Scheduled' %}#3498db{% 
+                                 else %}#e74c3c{% endif %};">
+            {{ job.status }}
+          </span>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" style="padding: 20px; text-align: center; color: #888;">
+          No jobs scheduled yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

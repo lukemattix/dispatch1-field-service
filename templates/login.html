@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #ecf0f1;">
+  <div style="background-color: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 360px;">
+    <h1 style="text-align: center; color: #2c3e50; margin-bottom: 24px;">🔒 Login</h1>
+    <form method="post">
+      <div style="margin-bottom: 16px;">
+        <label for="username" style="display: block; font-weight: 600; margin-bottom: 8px; color: #34495e;">Username</label>
+        <input id="username" name="username" type="text" required
+               style="width: 100%; padding: 12px 16px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box;">
+      </div>
+      <div style="margin-bottom: 24px;">
+        <label for="password" style="display: block; font-weight: 600; margin-bottom: 8px; color: #34495e;">Password</label>
+        <input id="password" name="password" type="password" required
+               style="width: 100%; padding: 12px 16px; border: 1px solid #bdc3c7; border-radius: 4px; box-sizing: border-box;">
+      </div>
+      <button type="submit"
+              style="width: 100%; padding: 12px; background-color: #2980b9; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer;">
+        Log In
+      </button>
+    </form>
+    <p style="text-align: center; margin-top: 16px; color: #7f8c8d; font-size: 14px;">Powered by Dispatch1</p>
+  </div>
+</div>
+{% endblock %}

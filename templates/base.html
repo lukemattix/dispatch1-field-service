@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+  <title>Field Service App</title>
+</head>
+<body>
+  {% if session.username %}
+    <p>Logged in as {{ session.username }} | <a href="{{ url_for('dashboard') }}">Dashboard</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
+  {% endif %}
+  <hr>
+  {% with messages = get_flashed_messages() %}
+    {% for msg in messages %}
+      <p><strong>{{ msg }}</strong></p>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</body>
+</html>
