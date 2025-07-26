@@ -60,6 +60,26 @@ def load_user(user_id: str):
     return User.query.get(int(user_id))
 
 
+def build_job_query():
+    """Build a job query with common filtering logic based on user role and request parameters."""
+    query = Job.query
+    if current_user.role == 'tech':
+        query = query.filter_by(tech=current_user.username)
+    
+    status = request.args.get('status')
+    start = request.args.get('start')
+    end = request.args.get('end')
+    
+    if status:
+        query = query.filter_by(status=status)
+    if start:
+        query = query.filter(Job.date >= start)
+    if end:
+        query = query.filter(Job.date <= end)
+    
+    return query
+
+
 @app.route('/')
 def home():
     return redirect(url_for('dashboard'))
@@ -86,19 +106,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    query = Job.query
-    if current_user.role == 'tech':
-        query = query.filter_by(tech=current_user.username)
-    status = request.args.get('status')
-    start = request.args.get('start')
-    end = request.args.get('end')
-    if status:
-        query = query.filter_by(status=status)
-    if start:
-        query = query.filter(Job.date >= start)
-    if end:
-        query = query.filter(Job.date <= end)
-    jobs = query.all()
+    jobs = build_job_query().all()
     return render_template('dashboard.html', jobs=jobs)
 
 
@@ -163,19 +171,7 @@ def update_job_status(job_id):
 @app.route('/download-csv')
 @login_required
 def download_csv():
-    query = Job.query
-    if current_user.role == 'tech':
-        query = query.filter_by(tech=current_user.username)
-    status = request.args.get('status')
-    start = request.args.get('start')
-    end = request.args.get('end')
-    if status:
-        query = query.filter_by(status=status)
-    if start:
-        query = query.filter(Job.date >= start)
-    if end:
-        query = query.filter(Job.date <= end)
-    jobs = query.all()
+    jobs = build_job_query().all()
     si = io.StringIO()
     cw = csv.writer(si)
     cw.writerow(['id', 'site', 'date', 'tech', 'status'])
