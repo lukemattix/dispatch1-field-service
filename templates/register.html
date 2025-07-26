@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="font-family: sans-serif; max-width: 400px; margin: auto;">
+  <h1 style="text-align:center;">Register User</h1>
+  <form method="post">
+    <div style="margin-bottom:10px;">
+      <label>Username:</label><br>
+      <input name="username" type="text" required style="width:100%;">
+    </div>
+    <div style="margin-bottom:10px;">
+      <label>Password:</label><br>
+      <input name="password" type="password" required style="width:100%;">
+    </div>
+    <div style="margin-bottom:10px;">
+      <label>Role:</label><br>
+      <select name="role" style="width:100%;">
+        <option value="tech" selected>tech</option>
+        <option value="admin">admin</option>
+      </select>
+    </div>
+    <div style="text-align:center;">
+      <input type="submit" value="Register" style="padding:8px 16px;">
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -4,8 +4,16 @@
   <title>Field Service App</title>
 </head>
 <body>
-  {% if session.username %}
-    <p>Logged in as {{ session.username }} | <a href="{{ url_for('dashboard') }}">Dashboard</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
+  {% if current_user.is_authenticated %}
+    <p>
+      Logged in as {{ current_user.username }} |
+      <a href="{{ url_for('dashboard') }}">Dashboard</a> |
+      <a href="{{ url_for('add_job') }}">Add Job</a> |
+      {% if current_user.role == 'admin' %}
+        <a href="{{ url_for('register') }}">Register User</a> |
+      {% endif %}
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </p>
   {% endif %}
   <hr>
   {% with messages = get_flashed_messages() %}
