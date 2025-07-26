@@ -1,54 +1,95 @@
-
-
 {% extends "base.html" %}
 {% block content %}
-<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 900px; margin: auto;">
-
-  <h1 style="text-align: center; color: #2c3e50;">📋 Job Dashboard</h1>
-
-  <div style="text-align: right; margin-bottom: 20px;">
-    <a href="{{ url_for('add_job') }}"
-       style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-      ➕ Add Job
-    </a>
+<div class="mb-3 d-flex justify-content-between align-items-center">
+  <h1 class="h3">📋 Job Dashboard</h1>
+  <div>
+    <a href="{{ url_for('add_job') }}" class="btn btn-primary">➕ Add Job</a>
+    <a href="{{ url_for('download_csv', **request.args) }}" class="btn btn-secondary ms-2">Download CSV</a>
   </div>
+</div>
 
-  <table style="width: 100%; border-collapse: collapse; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-    <thead style="background-color: #2980b9; color: white;">
+<form class="row g-3 mb-3" method="get">
+  <div class="col-md-3">
+    <label class="form-label">From</label>
+    <input type="date" name="start" value="{{ request.args.get('start','') }}" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">To</label>
+    <input type="date" name="end" value="{{ request.args.get('end','') }}" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Status</label>
+    <select name="status" class="form-select">
+      <option value="">All</option>
+      {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
+      <option value="{{ s }}" {% if request.args.get('status')==s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+  </div>
+</form>
+
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead class="table-primary">
       <tr>
-        <th style="padding: 12px; text-align: left;">📅 Date</th>
-        <th style="padding: 12px; text-align: left;">🏢 Site</th>
-        <th style="padding: 12px; text-align: left;">👷 Technician</th>
-        <th style="padding: 12px; text-align: left;">📌 Status</th>
+        <th>Date</th>
+        <th>Site</th>
+        <th>Technician</th>
+        <th>Status</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for job in jobs %}
-      <tr style="background-color: {% if loop.index0 % 2 == 0 %}#f9f9f9{% else %}#ffffff{% endif %};">
-        <td style="padding: 12px;">{{ job.date }}</td>
-        <td style="padding: 12px;">{{ job.site }}</td>
-        <td style="padding: 12px;">{{ job.tech }}</td>
-        <td style="padding: 12px;">
-          <span style="
-            padding: 5px 10px;
-            border-radius: 15px;
-            color: white;
-            background-color: {% if job.status == 'Completed' %}#2ecc71{% 
-                                 elif job.status == 'In Progress' %}#f1c40f{% 
-                                 elif job.status == 'Scheduled' %}#3498db{% 
-                                 else %}#e74c3c{% endif %};">
-            {{ job.status }}
-          </span>
+      <tr>
+        <td>{{ job.date }}</td>
+        <td>{{ job.site }}</td>
+        <td>{{ job.tech }}</td>
+        <td>
+          <span class="badge {% if job.status=='Completed' %}bg-success{% elif job.status=='In Progress' %}bg-warning text-dark{% elif job.status=='Scheduled' %}bg-primary{% else %}bg-danger{% endif %}" id="status-{{ job.id }}">{{ job.status }}</span>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary start-btn" data-id="{{ job.id }}" {% if job.status!='Scheduled' %}disabled{% endif %}>Start</button>
+          <button class="btn btn-sm btn-outline-success complete-btn" data-id="{{ job.id }}" {% if job.status!='In Progress' %}disabled{% endif %}>Complete</button>
+          <a href="{{ url_for('edit_job', job_id=job.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+          <form method="post" action="{{ url_for('delete_job', job_id=job.id) }}" style="display:inline;" onsubmit="return confirm('Delete this job?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
         </td>
       </tr>
       {% else %}
-      <tr>
-        <td colspan="4" style="padding: 20px; text-align: center; color: #888;">
-          No jobs scheduled yet.
-        </td>
-      </tr>
+      <tr><td colspan="5" class="text-center">No jobs scheduled yet.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+<script>
+$(function(){
+  $('.start-btn').click(function(){
+    const id=$(this).data('id');
+    $.post('/update-job-status/'+id, JSON.stringify({status:'In Progress'}),
+      function(data){
+        $('#status-'+id).text(data.status)
+          .removeClass().addClass('badge bg-warning text-dark');
+        $("button.start-btn[data-id='"+id+"']").prop('disabled',true);
+        $("button.complete-btn[data-id='"+id+"']").prop('disabled',false);
+      }, 'json');
+  });
+  $('.complete-btn').click(function(){
+    const id=$(this).data('id');
+    $.post('/update-job-status/'+id, JSON.stringify({status:'Completed'}),
+      function(data){
+        $('#status-'+id).text(data.status)
+          .removeClass().addClass('badge bg-success');
+        $("button.start-btn[data-id='"+id+"']").prop('disabled',true);
+        $("button.complete-btn[data-id='"+id+"']").prop('disabled',true);
+      }, 'json');
+  });
+});
+</script>
+
 {% endblock %}
