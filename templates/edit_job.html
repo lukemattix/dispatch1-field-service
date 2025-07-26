@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width:600px;">
+  <h1 class="mb-4">Edit Job</h1>
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Site Name</label>
+      <input name="site" type="text" value="{{ job.site }}" required class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Date</label>
+      <input name="date" type="date" value="{{ job.date }}" required class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Technician</label>
+      <input name="tech" type="text" value="{{ job.tech }}" required class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-select">
+        {% for s in ['To Be Scheduled','Scheduled','In Progress','Completed'] %}
+        <option value="{{ s }}" {% if job.status==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}

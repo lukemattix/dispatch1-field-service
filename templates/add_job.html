@@ -1,39 +1,30 @@
-
-
 {% extends "base.html" %}
 {% block content %}
-<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
-  <h1 style="text-align: center; color: #2c3e50;">➕ Add New Job</h1>
-
-  <form method="post" style="margin-top: 30px;">
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Site Name:</label>
-      <input name="site" type="text" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+<div class="container" style="max-width:600px;">
+  <h1 class="mb-4">➕ Add New Job</h1>
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label">Site Name</label>
+      <input name="site" type="text" class="form-control" required>
     </div>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Date:</label>
-      <input name="date" type="date" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+    <div class="mb-3">
+      <label class="form-label">Date</label>
+      <input name="date" type="date" class="form-control" required>
     </div>
-
-    <div style="margin-bottom: 20px;">
-      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Technician:</label>
-      <input name="tech" type="text" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+    <div class="mb-3">
+      <label class="form-label">Technician</label>
+      <input name="tech" type="text" class="form-control" required>
     </div>
-
-    <div style="margin-bottom: 30px;">
-      <label style="display: block; font-weight: bold; margin-bottom: 5px;">Status:</label>
-      <select name="status" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+    <div class="mb-3">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-select" required>
         <option>To Be Scheduled</option>
         <option>Scheduled</option>
         <option>In Progress</option>
         <option>Completed</option>
       </select>
     </div>
-
-    <div style="text-align: center;">
-      <input type="submit" value="Add Job" style="background-color: #2ecc71; color: white; font-weight: bold; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer;">
-    </div>
+    <button type="submit" class="btn btn-success">Add Job</button>
   </form>
 </div>
 {% endblock %}
